@@ -27,7 +27,7 @@ void getInput() {
 void solve() {
     int solution = 0;
     int tempR = r, tempC = c;
-    for (int i = N - 1; i > 0; i--) {
+    for (int i = N - 1; i >= 0; i--) {
         solution += find2Add(1 << i, tempR, tempC);
     }
     solution += arr[tempR*2 + tempC];
