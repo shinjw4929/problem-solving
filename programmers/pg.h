@@ -189,6 +189,19 @@ void _probe(const std::vector<std::string>& cols, std::index_sequence<I...>) {
     ((void)Parser<std::decay_t<Ts>>::apply(cols[I]), ...);
 }
 
+inline bool _looks_like_header(const std::vector<std::string>& cols) {
+    for (const auto& c : cols) {
+        for (char ch : c) {
+            if (ch == '"' || ch == '[' || ch == ']'
+                || ch == '-' || ch == '+' || ch == '.'
+                || std::isdigit(static_cast<unsigned char>(ch))) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 template <typename Ret, typename... Args>
 void tests(Ret (*fn)(Args...), const std::string& block) {
     std::istringstream iss(block);
@@ -198,6 +211,7 @@ void tests(Ret (*fn)(Args...), const std::string& block) {
         if (t.empty()) continue;
         auto cols = split_row(t);
         if (cols.size() != sizeof...(Args) + 1) continue;
+        if (_looks_like_header(cols)) continue;
         try {
             _probe<Args..., Ret>(cols, std::index_sequence_for<Args..., Ret>{});
         } catch (...) {
